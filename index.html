@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>MAX AGÊNCIA | MAX AGÊNCIA — Gestão Criativa</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+</head><body><div class="login-gate" id="loginGate"><div class="login-layout"><section class="login-showcase"><div class="login-brand"><i class="fa-solid fa-layer-group"></i> MAX AGÊNCIA<span style="opacity:.65"> / STUDIO</span></div><div><div class="login-lock" style="color:white"><i class="fa-solid fa-circle-nodes"></i> Creative workspace</div><h2>Ideias em movimento. Projetos sob controle.</h2><p>Seu estúdio de criação, planejamento e relacionamento com clientes em um só lugar.</p></div><div style="position:relative;z-index:1;font-size:12px;opacity:.8">ESTÚDIO CRIATIVO · ÁREA RESTRITA</div></section><section class="login-form-side"><div class="login-lock"><i class="fa-solid fa-lock"></i> Acesso ao painel</div><h1>Bem-vindo de volta.</h1><p>Entre com a senha de acesso para continuar sua produção.</p><form id="loginForm"><label for="loginPassword">Senha de acesso</label><input autocomplete="current-password" id="loginPassword" placeholder="Digite sua senha" required="" type="password"/><button class="login-submit" type="submit"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar no workspace</button><div aria-live="polite" class="login-error" id="loginError" role="alert"></div></form><small style="margin-top:35px;color:#ae7881">MAX AGÊNCIA · Acesso ao painel</small></section></div></div><div class="app"><aside class="sidebar"><div class="brand"><img alt="MAX AGÊNCIA" class="max-logo" src="https://i.ibb.co/3YL1TFBX/CRACH-S-DA-MAX-2.png"/><div class="max-brand-caption">ASSESSORIA DE MARKETING</div></div><nav class="nav" id="nav"></nav><div style="padding:20px 10px;color:var(--muted);font-size:11px">DADOS DA AGÊNCIA<br/>Atualização automática de conteúdos</div></aside><main class="main"><div class="top"><div><div class="eyebrow">WORKSPACE / AGÊNCIA</div><h1 id="pageTitle">Visão geral</h1><div class="muted" id="pageSub">Tudo o que sua agência precisa, em um só lugar.</div></div><div class="row"><span class="pill mint">Google Sheets • conexão automática</span><button class="btn" onclick="resetDemo()">Apagar todos os dados</button></div></div><div id="view"></div><div class="footer">MAX AGÊNCIA • Dados salvos no Google Sheets quando conectado • Notificações por e-mail configuradas no Apps Script</div></main></div><div class="modal hidden" id="modal"><div class="card"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn" onclick="closeModal()"></button></div><div id="modalBody"></div></div></div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<div aria-live="polite" id="maxSyncStatus" role="status" style="position:fixed;right:16px;bottom:16px;z-index:7000;background:#fff;color:#6c2027;border:1px solid #e9b6ba;border-radius:9px;padding:9px 12px;font-size:11px;box-shadow:0 3px 15px #0001">Conectando ao Google Sheets...</div>
+
+<script src="script.js"></script>
+</body></html>
