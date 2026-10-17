@@ -218,3 +218,19 @@ body{font:16px system-ui;max-width:950px;margin:40px auto;padding:20px;color:#17
  
 
 .max-export-brand{background:#c80203;color:#fff;padding:22px 26px;border-radius:10px;display:flex;align-items:center;gap:22px;margin:0 0 28px;break-inside:avoid}.max-export-brand img{width:145px;max-height:95px;object-fit:contain}.max-export-brand div{font:700 16px Arial,sans-serif;letter-spacing:.3px}.max-export-brand small{display:block;font:400 11px Arial,sans-serif;margin-top:7px;letter-spacing:1.5px}@media print{.max-export-brand{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* Refinamento visual MAX — mantém estrutura original */
+body{font-family:Inter,"Segoe UI",system-ui,sans-serif!important;line-height:1.5;-webkit-font-smoothing:antialiased}
+.main{padding-top:40px!important}.top{padding-bottom:20px;border-bottom:1px solid #efd9dc;margin-bottom:26px}
+.main h1{font-size:clamp(25px,2.4vw,34px);letter-spacing:-.045em}
+.card,.agenda-panel,.library-card,.preview-panel,.report-kpi,.pub-kpi{border-radius:16px!important;box-shadow:0 7px 26px #6b001009!important;transition:border-color .18s,box-shadow .18s}
+.card:hover,.library-card:hover{box-shadow:0 12px 34px #6b001012!important}
+.btn{min-height:39px;transition:transform .15s,box-shadow .15s,border-color .15s!important}
+.btn:hover{transform:translateY(-1px);box-shadow:0 5px 13px #8c001018}
+.sidebar .nav button{border-radius:10px!important;min-height:46px!important}
+input,select,textarea{min-height:40px;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{box-shadow:0 0 0 4px #c8020312!important}
+.report-table th,.pub-table th{font-weight:750;letter-spacing:.07em}
+.metric{font-variant-numeric:tabular-nums}
+.max-danger{color:#a5000a!important;border-color:#eab5ba!important;background:#fff!important}
+.max-danger:hover{background:#fff0f1!important;border-color:#c80203!important}
+@media(max-width:700px){.main{padding:20px 16px!important}.card{padding:17px!important}}
