@@ -39,9 +39,12 @@ const extraIdeas=[
 ];
 for(const i of extraIdeas)if(!db.ideas.some(x=>x.id===i.id))db.ideas.push(i);
 save();
-function normalizedFormat(f){return f==='Reel'?'Reel':f==='Stories'?'Stories':(['Post','Carrossel'].includes(f)?'Post':null)}
-function companyLines(){return String(company(selectedCompany).lines||'').split(/[,;|]/).map(x=>x.trim()).filter(Boolean)}
-function matchingIdeas(){let lines=companyLines();return db.ideas.filter(i=>normalizedFormat(i.format)===libraryFormat&&(libraryLine==='Todas'||i.line===libraryLine)&&(lines.some(l=>l.toLowerCase()===String(i.line).toLowerCase())||i.line==='Universal')&&[i.title,i.line,i.goal,i.script].join(' ').toLowerCase().includes(libraryQuery.toLowerCase()))}
+// Normalização centralizada: compatibilidade entre cadastros e banco criativo.
+function maxEditorialKey(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase().replace(/[_-]+/g,' ').replace(/\s+/g,' ').replace(/ç/g,'c').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,'');}
+function maxEditorialLine(value){const k=maxEditorialKey(value);const aliases={interacao:'interacao',interacoes:'interacao',interativo:'interacao',educacao:'educacional',educativo:'educacional',instituicao:'institucional',venda:'vendas',produto:'produto',produtos:'produto',relacionamentos:'relacionamento',bastidor:'bastidores',memes:'humor',meme:'humor',datascomemorativas:'sazonal',datascomemorativa:'sazonal',comemorativas:'sazonal'};return aliases[k]||k;}
+function normalizedFormat(f){const k=maxEditorialKey(f);if(['reel','reels','video','videos','video curto','videos curtos'].includes(k))return 'Reel';if(['story','stories','storie','sequencia de stories'].includes(k))return 'Stories';if(['post','posts','feed','post estatico','post estatico feed','carrossel','carrossels','carrosseis','arte','imagem','foto','fotografia','post unico'].includes(k))return 'Post';return null;}
+function companyLines(){const raw=company(selectedCompany).lines;return (Array.isArray(raw)?raw:String(raw||'').split(/[,;|\n]+/)).map(x=>String(x).trim()).filter(Boolean);}
+function matchingIdeas(){const allowed=new Set(companyLines().map(maxEditorialLine));const selected=maxEditorialLine(libraryLine);const query=maxEditorialKey(libraryQuery);return (db.ideas||[]).filter(i=>{const line=maxEditorialLine(i.line||i.editorial_line||i.linha_editorial);const format=normalizedFormat(i.format||i.formato||i.type);if(format!==libraryFormat)return false;if(libraryLine!=='Todas'&&line!==selected)return false;if(line!=='universal'&&!allowed.has(line))return false;return !query||maxEditorialKey([i.title,i.line,i.goal,i.script].join(' ')).includes(query);});}
 function openLibrary(date='',format=''){libraryDate=date;libraryFormat=format||'Reel';libraryLine='Todas';libraryQuery='';previewIdea=null;page='library';render()}
 function changeLibraryFormat(f){libraryFormat=f;libraryLine='Todas';previewIdea=null;render()}
 function changeLibraryLine(l){libraryLine=l;previewIdea=null;render()}
