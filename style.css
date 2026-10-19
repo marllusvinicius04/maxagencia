@@ -261,81 +261,38 @@ body>.app,.app{display:flex!important;align-items:stretch;width:100%!important;m
 @media(max-width:950px){.app>.sidebar{flex-basis:220px!important;width:220px!important;min-width:220px!important;max-width:220px!important}.app>.main{width:calc(100% - 220px)!important;padding:26px 22px!important}#view>.two,.main .two,.agenda-shell,.library-layout{grid-template-columns:minmax(0,1fr)!important}}
 @media(max-width:700px){body>.app,.app{display:block!important}.app>.sidebar{position:relative!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;max-height:none!important;padding:14px!important}.app>.sidebar .nav{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:6px}.app>.sidebar .nav button{width:auto!important;min-width:max-content!important;white-space:nowrap!important}.app>.main{width:100%!important;max-width:none!important;padding:20px 16px!important}.main>.top{align-items:flex-start;flex-direction:column}.main>.top>.row{justify-content:flex-start}#view>.grid,.main .grid,#view>.content-grid,.main .content-grid,#view>.three,.main .three,#view>.kanban,.main .kanban{grid-template-columns:minmax(0,1fr)!important}}
 
-/* MAX AGÊNCIA — MENU FIXO E ROLAGEM CONSISTENTE */
-@media (min-width:701px){
-  .app>.sidebar{
-    position:fixed!important;top:0!important;left:0!important;bottom:0!important;
-    height:100dvh!important;max-height:100dvh!important;
-    display:flex!important;flex-direction:column!important;
-    overflow-y:auto!important;overflow-x:hidden!important;
-    z-index:100!important;overscroll-behavior:contain;
-  }
-  .app>.sidebar .brand{flex-shrink:0!important}
-  .app>.sidebar .nav{flex:0 0 auto!important}
-  .app>.main{
-    margin-left:252px!important;width:calc(100% - 252px)!important;
-    flex:1 1 auto!important;min-height:100dvh!important;
-  }
-}
-@media (min-width:701px) and (max-width:950px){
-  .app>.main{margin-left:220px!important;width:calc(100% - 220px)!important}
-}
-@media (max-width:700px){
-  .app>.sidebar{position:relative!important;left:auto!important;top:auto!important;bottom:auto!important;
-    height:auto!important;max-height:none!important;overflow:visible!important}
-  .app>.main{margin-left:0!important;width:100%!important}
-}
-
-/* MAX AGÊNCIA | CORREÇÃO DEFINITIVA DO FUNDO INFERIOR DA BARRA LATERAL
-   Mantém o vermelho até a borda inferior da janela, mesmo em páginas longas. */
+/* MAX AGÊNCIA — LAYOUT ESTÁVEL: uma única rolagem da página.
+   overflow-x:hidden em ancestrais impedia o sticky de funcionar. */
 @media (min-width:701px) {
-  html, body { min-height:100%; }
-  body { margin:0!important; overflow-x:hidden!important; }
-  body::before {
-    content:"";
-    position:fixed;
-    inset:0 auto 0 0;
-    width:252px;
-    height:100vh;
-    height:100dvh;
-    background:#c80203;
-    pointer-events:none;
-    z-index:0;
+  html { overflow-x:clip!important; overflow-y:visible!important; }
+  body { overflow-x:clip!important; overflow-y:visible!important; }
+  body > .app {
+    display:flex!important; align-items:stretch!important;
+    width:100%!important; min-height:100vh!important;
+    overflow:visible!important; position:relative!important;
   }
-  body > .app { position:relative!important; min-height:100vh!important; min-height:100dvh!important; isolation:isolate; }
   body > .app > .sidebar {
-    position:fixed!important;
-    inset:0 auto 0 0!important;
-    width:252px!important;
-    min-width:252px!important;
-    max-width:252px!important;
-    height:100vh!important;
-    height:100dvh!important;
-    min-height:100vh!important;
-    margin:0!important;
-    border-radius:0!important;
-    background:#c80203!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    z-index:200!important;
+    position:sticky!important; top:0!important; left:auto!important;
+    bottom:auto!important; align-self:flex-start!important;
+    flex:0 0 252px!important; width:252px!important;
+    min-width:252px!important; max-width:252px!important;
+    height:100vh!important; height:100dvh!important;
+    min-height:0!important; max-height:100dvh!important;
+    overflow-y:auto!important; overflow-x:hidden!important;
+    background:#c80203!important; border-radius:0!important;
+    margin:0!important; z-index:100!important;
   }
   body > .app > .main {
-    position:relative!important;
-    margin:0 0 0 252px!important;
-    width:calc(100% - 252px)!important;
-    max-width:none!important;
-    min-height:100vh!important;
-    min-height:100dvh!important;
-    align-self:stretch!important;
+    flex:1 1 0%!important; min-width:0!important;
+    width:auto!important; max-width:none!important;
+    margin:0!important; min-height:100vh!important;
   }
 }
 @media (min-width:701px) and (max-width:950px) {
-  body::before { width:220px; }
-  body > .app > .sidebar { width:220px!important; min-width:220px!important; max-width:220px!important; }
-  body > .app > .main { margin-left:220px!important; width:calc(100% - 220px)!important; }
+  body > .app > .sidebar {flex-basis:220px!important;width:220px!important;min-width:220px!important;max-width:220px!important;}
 }
 @media (max-width:700px) {
-  body::before { content:none!important; }
-  body > .app > .sidebar { position:relative!important; inset:auto!important; width:100%!important; height:auto!important; min-height:0!important; }
-  body > .app > .main { margin:0!important; width:100%!important; }
+  body > .app {display:block!important;}
+  body > .app > .sidebar {position:relative!important;top:auto!important;height:auto!important;max-height:none!important;width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important;}
+  body > .app > .main {margin:0!important;width:100%!important;}
 }
