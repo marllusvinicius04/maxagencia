@@ -382,3 +382,19 @@ function downloadClient(){
  </style></head><body><header class="hero"><div class="wrap"><div class="brand"><span class="brand-mark">MAX</span> AGÊNCIA <span style="opacity:.5">/ PLANEJAMENTO</span></div><div class="eyebrow">Estratégia · Conteúdo · Resultados</div><h1>Planejamento<br>editorial.</h1><p class="sub">Uma visão completa das publicações e ideias desenvolvidas para <strong>${esc(c.name)}</strong>.</p><div class="hero-meta"><span class="chip">${esc(c.name)}</span><span class="chip">${esc(label)}</span><span class="chip">${posts.length} conteúdos planejados</span></div></div></header><main class="main wrap"><div class="section-head"><div><h2>Calendário de conteúdo</h2><p>Selecione uma publicação para consultar os detalhes.</p></div><span class="count">${posts.length} conteúdos</span></div><div class="calendar">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(x=>`<div class="weekday">${x}</div>`).join('')}${cells.join('')}</div><div class="section-head" style="margin-top:48px"><div><h2>Detalhamento editorial</h2><p>Roteiros e legendas organizados para consulta.</p></div></div><div class="entries">${posts.map(p=>`<article class="entry" id="conteudo-${esc(p.id)}"><div class="entry-top"><span class="tag red">${esc(p.date.split('-').reverse().join('/'))} · ${esc(p.time||'')}</span><span class="tag">${esc(idea(p.idea).format)}</span><span class="tag">${status(p)}</span></div><h3>${esc(p.title)}</h3><h4>Roteiro / Direção criativa</h4><div class="copy">${esc(p.script||'A definir')}</div><h4>Sugestão de legenda</h4><div class="copy">${esc(p.caption||'Legenda em desenvolvimento')}</div></article>`).join('')||'<div class="empty-state">Ainda não há conteúdos cadastrados neste período.</div>'}</div></main><footer class="footer"><div class="wrap">MAX AGÊNCIA · Assessoria de Marketing · Planejamento exclusivo para ${esc(c.name)}</div></footer></body></html>`;
  download(`cliente_${selectedCompany}_${month}.html`,page,'text/html');
 }
+
+/* Publicações: acompanhar automaticamente a empresa selecionada no calendário. */
+const maxNavigateBeforePubSync = navigate;
+navigate = function(destination){
+  if(destination === 'publish') {
+    pubCompany = selectedCompany;
+    pubStatus = 'Todos';
+  }
+  return maxNavigateBeforePubSync(destination);
+};
+/* Um único conjunto de registros: conteúdos criados no editorial são listados
+   independentemente do mês, formato ou situação. */
+pubEntries = function(){
+  return (db.posts || []).filter(p => String(p.company) === String(pubCompany))
+    .sort((a,b) => String(a.date || '').localeCompare(String(b.date || '')) || String(a.time || '').localeCompare(String(b.time || '')));
+};
