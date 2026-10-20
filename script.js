@@ -401,3 +401,32 @@ pubEntries = function(){
   return (db.posts || []).filter(p => String(p.company) === String(pubCompany))
     .sort((a,b) => String(a.date || '').localeCompare(String(b.date || '')) || String(a.time || '').localeCompare(String(b.time || '')));
 };
+/* MAX Agência — campanhas estratégicas por semana (empresa + segunda-feira). */
+const MAX_CAMPAIGN_GOALS=['Engajamento','Autoridade','Vendas','Posicionamento'];
+if(!db.weekCampaigns||typeof db.weekCampaigns!=='object')db.weekCampaigns={};
+function maxCampaignKey(cid,date){return String(cid)+'|'+mondayOf(date)}
+function maxCampaign(cid,date){return db.weekCampaigns[maxCampaignKey(cid,date)]||null}
+function maxGoalKey(v){let k=maxEditorialKey(v);if(['venda','vendas','conversao','conversoes','comercial'].includes(k))return 'Vendas';if(['autoridade','educacao','salvamentos','credibilidade'].includes(k))return 'Autoridade';if(['posicionamento','reconhecimento','institucional','marca'].includes(k))return 'Posicionamento';if(['engajamento','interacao','comentarios','compartilhamentos','alcance','respostas','relacionamento'].includes(k))return 'Engajamento';return ''}
+function maxIdeaScore(i,goal){let g=maxGoalKey(i.goal),line=maxEditorialLine(i.line);let scores={Engajamento:{humor:4,interacao:4,relacionamento:3,bastidores:2,educacional:1},Autoridade:{educacional:4,institucional:3,produto:3,bastidores:2},Vendas:{vendas:5,produto:4,relacionamento:2,educacional:2},Posicionamento:{institucional:5,bastidores:4,relacionamento:3,educacional:2}};return (g===goal?10:0)+(scores[goal]?.[line]||0)}
+function maxCampaignIdeas(items,campaign){if(!campaign)return [];return items.map(i=>({i,score:maxIdeaScore(i,campaign.goal)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).map(x=>x.i)}
+function maxCampaignWeeks(){let [y,m]=month.split('-').map(Number),first=mondayOf(month+'-01'),last=`${month}-${String(new Date(y,m,0).getDate()).padStart(2,'0')}`,out=[];for(let d=first;d<=last;d=addDays(d,7))out.push(d);return out}
+function maxCampaignPanel(){return `<div class="card section"><div class="row between"><div><div class="eyebrow">ESTRATÉGIA DO MÊS</div><h2>Objetivo de cada semana</h2><p class="muted">Defina a meta antes de adicionar conteúdos. Cada empresa possui seu próprio planejamento.</p></div></div><div class="content-grid">${maxCampaignWeeks().map(start=>{let c=maxCampaign(selectedCompany,start),end=addDays(start,6);return `<div class="item"><small>${esc(start.split('-').reverse().join('/'))} a ${esc(end.split('-').reverse().join('/'))}</small><h3>${c?esc(c.goal):'Objetivo não definido'}</h3>${c?.description?`<p class="muted">${esc(c.description)}</p>`:''}<button class="btn ${c?'':'primary'}" onclick="maxEditCampaign('${start}')">${c?'Editar campanha':'Definir objetivo'}</button></div>`}).join('')}</div></div>`}
+function maxEditCampaign(start){let c=maxCampaign(selectedCompany,start)||{goal:'Engajamento',description:''},cid=selectedCompany;openModal('Campanha semanal · '+start,`<form id="maxCampaignForm"><div class="field"><label>Objetivo principal da semana</label><select name="goal">${MAX_CAMPAIGN_GOALS.map(g=>`<option ${g===c.goal?'selected':''}>${g}</option>`).join('')}</select></div><div class="field"><label>Foco da campanha (opcional)</label><textarea name="description" placeholder="Ex.: aumentar pedidos de orçamento para o serviço X">${esc(c.description)}</textarea></div><div class="notice">As ideias serão priorizadas por este objetivo, respeitando os formatos e as linhas editoriais cadastradas para a empresa.</div><button class="btn primary" type="submit">Salvar campanha semanal</button></form>`);el('maxCampaignForm').onsubmit=e=>{e.preventDefault();let f=Object.fromEntries(new FormData(e.currentTarget));db.weekCampaigns[maxCampaignKey(cid,start)]={goal:f.goal,description:f.description||''};save();closeModal();render()}}
+const maxCampaignCalendarOriginal=calendarView;
+calendarView=function(){return maxCampaignPanel()+maxCampaignCalendarOriginal()};
+const maxCampaignOpenLibraryOriginal=openLibrary;
+openLibrary=function(date='',format=''){let target=date||month+'-01';if(!maxCampaign(selectedCompany,target)){maxEditCampaign(mondayOf(target));return}return maxCampaignOpenLibraryOriginal(date,format)};
+const maxCampaignMatchingOriginal=matchingIdeas;
+matchingIdeas=function(){let campaign=maxCampaign(selectedCompany,libraryDate||month+'-01');return maxCampaignIdeas(maxCampaignMatchingOriginal(),campaign)};
+const maxCampaignLibraryOriginal=libraryView;
+libraryView=function(){let campaign=maxCampaign(selectedCompany,libraryDate||month+'-01');return `<div class="notice"><b>Objetivo semanal: ${esc(campaign?.goal||'Não definido')}</b>${campaign?.description?' · '+esc(campaign.description):''}<br>Ideias organizadas para atingir a meta da campanha.</div>`+maxCampaignLibraryOriginal()};
+const maxCampaignPlanOriginal=planLibraryIdea;
+planLibraryIdea=function(id){if(!maxCampaign(selectedCompany,libraryDate||month+'-01')){maxEditCampaign(mondayOf(libraryDate||month+'-01'));return}return maxCampaignPlanOriginal(id)};
+const maxCampaignOpenWeekOriginal=openWeekCreator;
+openWeekCreator=function(){let start=mondayOf(month+'-05');if(!maxCampaign(selectedCompany,start)){maxEditCampaign(start);return}return maxCampaignOpenWeekOriginal()};
+const maxCampaignWeekGenerateOriginal=weekGenerate;
+weekGenerate=function(){maxCampaignWeekGenerateOriginal();let campaign=maxCampaign(weekCompany,weekStart);if(campaign){weekPool=weekPool.filter(x=>{let i=idea(x.idea);return maxIdeaScore(i,campaign.goal)>0}).sort((a,b)=>maxIdeaScore(idea(b.idea),campaign.goal)-maxIdeaScore(idea(a.idea),campaign.goal))}};
+const maxCampaignWeekViewOriginal=weekView;
+weekView=function(){let campaign=maxCampaign(weekCompany,weekStart);return `<div class="notice">Campanha desta semana: <b>${esc(campaign?.goal||'Não definida')}</b> · <button class="btn" onclick="maxEditCampaign('${weekStart}')">Alterar objetivo</button></div>`+maxCampaignWeekViewOriginal()};
+const maxCampaignEditorialOriginal=editorialObject;
+editorialObject=function(){let obj=maxCampaignEditorialOriginal();obj.weekly_campaigns=maxCampaignWeeks().filter(d=>maxCampaign(selectedCompany,d)).map(d=>({week_start:d,...maxCampaign(selectedCompany,d)}));obj.ai_instructions+=' Respeite o objetivo da campanha semanal correspondente à data de cada conteúdo (weekly_campaigns), usando esse objetivo para orientar abordagem, gancho e CTA. Preserve weekly_campaigns sem alterações.';return obj};
