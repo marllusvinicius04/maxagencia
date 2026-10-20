@@ -430,3 +430,44 @@ const maxCampaignWeekViewOriginal=weekView;
 weekView=function(){let campaign=maxCampaign(weekCompany,weekStart);return `<div class="notice">Campanha desta semana: <b>${esc(campaign?.goal||'Não definida')}</b> · <button class="btn" onclick="maxEditCampaign('${weekStart}')">Alterar objetivo</button></div>`+maxCampaignWeekViewOriginal()};
 const maxCampaignEditorialOriginal=editorialObject;
 editorialObject=function(){let obj=maxCampaignEditorialOriginal();obj.weekly_campaigns=maxCampaignWeeks().filter(d=>maxCampaign(selectedCompany,d)).map(d=>({week_start:d,...maxCampaign(selectedCompany,d)}));obj.ai_instructions+=' Respeite o objetivo da campanha semanal correspondente à data de cada conteúdo (weekly_campaigns), usando esse objetivo para orientar abordagem, gancho e CTA. Preserve weekly_campaigns sem alterações.';return obj};
+
+
+// MAX Agência — descoberta variada de conteúdos na biblioteca.
+// Embaralha a seleção inicial, mantém filtros e oferece novas rodadas sem repetição imediata.
+let maxLibraryOrder=[],maxLibraryVisible=9,maxLibrarySignature='';
+function maxLibraryShuffle(items){
+  const arr=items.slice();
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+function maxLibraryReset(){maxLibrarySignature='';maxLibraryVisible=9;maxLibraryOrder=[];}
+function maxLibraryItems(){
+  const items=matchingIdeas();
+  const signature=[selectedCompany,libraryFormat,libraryLine,libraryQuery,items.map(i=>i.id).join('|')].join('::');
+  if(signature!==maxLibrarySignature){maxLibrarySignature=signature;maxLibraryVisible=9;maxLibraryOrder=maxLibraryShuffle(items.map(i=>i.id));}
+  const lookup=new Map(items.map(i=>[i.id,i]));
+  return maxLibraryOrder.map(id=>lookup.get(id)).filter(Boolean);
+}
+function maxLibraryMore(){maxLibraryVisible+=9;updateLibraryCards();}
+function maxLibraryRemix(){
+  const oldFirst=maxLibraryOrder.slice(0,Math.min(9,maxLibraryOrder.length)).join('|');
+  let next=maxLibraryOrder.slice();
+  if(next.length>1){for(let attempt=0;attempt<8;attempt++){next=maxLibraryShuffle(next);if(next.slice(0,Math.min(9,next.length)).join('|')!==oldFirst)break;}}
+  maxLibraryOrder=next;maxLibraryVisible=9;previewIdea=null;
+  updateLibraryCards();
+  const preview=el('libraryPreview');if(preview)preview.innerHTML='<div class="eyebrow">PRÉVIA DE ROTEIRO</div><h2>Escolha uma nova ideia</h2><p class="muted">As sugestões foram embaralhadas. Selecione uma para visualizar o roteiro.</p>';
+}
+const maxLibraryOpenBeforeShuffle=openLibrary;
+openLibrary=function(date='',format=''){maxLibraryReset();return maxLibraryOpenBeforeShuffle(date,format)};
+const maxLibraryFormatBeforeShuffle=changeLibraryFormat;
+changeLibraryFormat=function(f){maxLibraryReset();return maxLibraryFormatBeforeShuffle(f)};
+const maxLibraryLineBeforeShuffle=changeLibraryLine;
+changeLibraryLine=function(l){maxLibraryReset();return maxLibraryLineBeforeShuffle(l)};
+const maxLibrarySearchBeforeShuffle=searchLibrary;
+searchLibrary=function(q){maxLibraryReset();return maxLibrarySearchBeforeShuffle(q)};
+libraryCards=function(){
+  const all=maxLibraryItems(),shown=all.slice(0,maxLibraryVisible);
+  if(!all.length)return '<div class="notice">Nenhuma ideia encontrada para os filtros atuais. Tente outro formato, linha editorial ou busca.</div>';
+  const cards=shown.map(i=>`<div class="library-card"><div class="row between"><span class="pill mint">${esc(i.line)}</span><span class="pill">${esc(i.goal)}</span></div><h3>${esc(i.title)}</h3><p>${esc(String(i.script||'').slice(0,105))}...</p><div class="row"><button class="btn" onclick="previewLibrary('${esc(i.id)}')">◉ Ver roteiro</button><button class="btn primary" onclick="planLibraryIdea('${esc(i.id)}')">＋ Escolher</button></div></div>`).join('');
+  return cards+`<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:18px 0"><span class="muted">Exibindo ${shown.length} de ${all.length} ideias</span>${shown.length<all.length?'<button class="btn primary" onclick="maxLibraryMore()">＋ Ver mais conteúdos</button>':''}<button class="btn" onclick="maxLibraryRemix()">⤨ Embaralhar sugestões</button></div>`;
+};
